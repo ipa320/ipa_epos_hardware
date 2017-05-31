@@ -33,39 +33,39 @@ int main(int argc, char** argv){
       std::vector<std::string> protocol_stack_names;
       if(GetProtocolStackNameList(device_name, &protocol_stack_names, &error_code)) {
 	BOOST_FOREACH(const std::string& protocol_stack_name, protocol_stack_names) {
-	  std::cout << "\t" << protocol_stack_name <<std::endl;
+	  std::cout << " " << protocol_stack_name <<std::endl;
 
 	  std::vector<std::string> interface_names;
 	  if(GetInterfaceNameList(device_name, protocol_stack_name, &interface_names, &error_code)) {
 	    BOOST_FOREACH(const std::string& interface_name, interface_names) {
-	      std::cout << "\t\t" << interface_name <<std::endl;
+	      std::cout << "  " << interface_name <<std::endl;
 	      if(skip_rs232 && interface_name == "RS232"){
-		std::cout << "\t\t\tSkipping RS232" <<std::endl;
+		std::cout << "   Skipping RS232" <<std::endl;
 		continue;
 	      }
 
 	      std::vector<std::string> port_names;
 	      if(GetPortNameList(device_name, protocol_stack_name, interface_name, &port_names, &error_code)) {
 		BOOST_FOREACH(const std::string& port_name, port_names) {
-		  std::cout << "\t\t\t" << port_name <<std::endl;
+		  std::cout << "   " << port_name <<std::endl;
 
 		  std::vector<unsigned int> baudrates;
 		  if(GetBaudrateList(device_name, protocol_stack_name, interface_name, port_name, &baudrates, &error_code)) {
-		    std::cout << "\t\t\t\tBaudrates:" << std::endl;
+		    std::cout << "    Baudrates:" << std::endl;
 		    BOOST_FOREACH(unsigned int baudrate, baudrates) {
-		      std::cout << "\t\t\t\t\t" << std::dec << baudrate <<std::endl;
+		      std::cout << "     " << std::dec << baudrate <<std::endl;
 		    }
 
 		    std::vector<EnumeratedNode> devices;
 		    if(epos_factory.EnumerateNodes(device_name, protocol_stack_name, interface_name, port_name, &devices, &error_code)) {
-		      std::cout << "\t\t\t\tDevices:" << std::endl;
+		      std::cout << "    Devices:" << std::endl;
 		      BOOST_FOREACH(const EnumeratedNode& node, devices) {
-			std::cout << "\t\t\t\t\tNode Id: " << std::dec << node.node_id << std::endl;
-			std::cout << "\t\t\t\t\t\tSerial Number: 0x" << std::hex << node.serial_number << std::endl;
-			std::cout << "\t\t\t\t\t\tHardware Version: 0x" << std::hex << node.hardware_version << std::endl;
-			std::cout << "\t\t\t\t\t\tSoftware Version: 0x" << std::hex << node.software_version << std::endl;
-			std::cout << "\t\t\t\t\t\tApplication Number: 0x" << std::hex << node.application_number << std::endl;
-			std::cout << "\t\t\t\t\t\tApplication Version: 0x" << std::hex << node.application_version << std::endl;
+			std::cout << "     Node Id: " << std::dec << node.node_id << std::endl;
+			std::cout << "      Serial Number: 0x" << std::hex << node.serial_number << std::endl;
+			std::cout << "      Hardware Version: 0x" << std::hex << node.hardware_version << std::endl;
+			std::cout << "      Software Version: 0x" << std::hex << node.software_version << std::endl;
+			std::cout << "      Application Number: 0x" << std::hex << node.application_number << std::endl;
+			std::cout << "      Application Version: 0x" << std::hex << node.application_version << std::endl;
 		      }
 		    }
 		    else {
