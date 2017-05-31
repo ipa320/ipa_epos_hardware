@@ -170,7 +170,6 @@ NodeHandlePtr EposFactory::CreateNodeHandle(const std::string device_name,
 					    unsigned int* error_code) {
   std::vector<EnumeratedNode> nodes;
   EnumerateNodes(device_name, protocol_stack_name, interface_name, port_name, &nodes, error_code);
-  ROS_INFO_STREAM("CreateNodeHandle with port name found " << nodes.size() << " nodes");
   BOOST_FOREACH(const EnumeratedNode& node, nodes) {
     return CreateNodeHandle(node, error_code);
 

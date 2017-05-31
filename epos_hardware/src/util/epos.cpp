@@ -22,6 +22,7 @@ Epos::Epos(const std::string& name,
   , statusword_(0)
   , position_cmd_(0)
   , velocity_cmd_(0)
+  , sensor_resolution_(1)
 {
   valid_ = true;
   if (!config_nh_.getParam("actuator_name", actuator_name_))
@@ -319,7 +320,11 @@ bool Epos::init()
   ROS_INFO("Configuring Sensor");
   {
     ros::NodeHandle sensor_nh(config_nh_, "sensor");
-
+    if (!sensor_nh.getParam("resolution", sensor_resolution_))
+    {
+      ROS_ERROR("No sensor resolution specified. Use 1");
+      sensor_resolution_ = 1;
+    }
     VCS_FROM_SINGLE_PARAM_REQUIRED(sensor_nh, int, type, SetSensorType);
 
     {
@@ -622,8 +627,8 @@ void Epos::read()
   VCS_GetPositionIs(node_handle_->device_handle->ptr, node_handle_->node_id, &position_raw, &error_code);
   VCS_GetVelocityIs(node_handle_->device_handle->ptr, node_handle_->node_id, &velocity_raw, &error_code);
   VCS_GetCurrentIs(node_handle_->device_handle->ptr, node_handle_->node_id, &current_raw, &error_code);
-  position_ = position_raw;
-  velocity_ = velocity_raw;
+  position_ = 2 * M_PI * position_raw / (1.0 *sensor_resolution_);
+  velocity_ = velocity_raw * 2 * M_PI / 60;
   current_ = current_raw / 1000.0;  // mA -> A
   effort_ = current_ * torque_constant_;
 }
@@ -638,13 +643,13 @@ void Epos::write()
   {
     if (isnan(velocity_cmd_))
       return;
-    int cmd = (int)velocity_cmd_;
+    int cmd = (int)(velocity_cmd_ * 60 / (2 * M_PI));
     if (max_profile_velocity_ >= 0)
     {
-      if (cmd < -max_profile_velocity_)
-        cmd = -max_profile_velocity_;
-      if (cmd > max_profile_velocity_)
-        cmd = max_profile_velocity_;
+      if (cmd < -max_profile_velocity_ * 60 / (2 * M_PI))
+        cmd = -max_profile_velocity_ * 60 / (2 * M_PI);
+      if (cmd > max_profile_velocity_ * 60 / (2 * M_PI))
+        cmd = max_profile_velocity_ * 60 / (2 * M_PI);
     }
 
     if (cmd == 0 && halt_velocity_)
@@ -661,7 +666,7 @@ void Epos::write()
     if (isnan(position_cmd_))
       return;
     VCS_MoveToPosition(
-        node_handle_->device_handle->ptr, node_handle_->node_id, (int)position_cmd_, true, true, &error_code);
+        node_handle_->device_handle->ptr, node_handle_->node_id, (int)(M_PI*2*position_cmd_), true, true, &error_code);
   }
 }
 
@@ -764,12 +769,12 @@ void Epos::buildMotorOutputStatus(diagnostic_updater::DiagnosticStatusWrapper& s
   if (operation_mode_ == PROFILE_POSITION_MODE)
   {
     operation_mode_str = "Profile Position Mode";
-    stat.add("Commanded Position", boost::lexical_cast<std::string>(position_cmd_) + " rotations");
+    stat.add("Commanded Position", boost::lexical_cast<std::string>(position_cmd_) + " rad");
   }
   else if (operation_mode_ == PROFILE_VELOCITY_MODE)
   {
     operation_mode_str = "Profile Velocity Mode";
-    stat.add("Commanded Velocity", boost::lexical_cast<std::string>(velocity_cmd_) + " rpm");
+    stat.add("Commanded Velocity", boost::lexical_cast<std::string>(velocity_cmd_) + " rad/s");
   }
   else
   {
@@ -782,8 +787,8 @@ void Epos::buildMotorOutputStatus(diagnostic_updater::DiagnosticStatusWrapper& s
   unsigned int error_code;
   if (has_init_)
   {
-    stat.add("Position", boost::lexical_cast<std::string>(position_) + " rotations");
-    stat.add("Velocity", boost::lexical_cast<std::string>(velocity_) + " rpm");
+    stat.add("Position", boost::lexical_cast<std::string>(position_) + " rad");
+    stat.add("Velocity", boost::lexical_cast<std::string>(velocity_) + " rad/s");
     stat.add("Torque", boost::lexical_cast<std::string>(effort_) + " Nm");
     stat.add("Current", boost::lexical_cast<std::string>(current_) + " A");
 

@@ -65,6 +65,7 @@ private:
   double position_cmd_;
   double velocity_cmd_;
   int max_profile_velocity_;
+  int sensor_resolution_;
   bool halt_velocity_;
   double torque_constant_;
   double nominal_current_;
