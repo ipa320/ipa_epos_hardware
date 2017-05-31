@@ -76,6 +76,11 @@ public:
 				 const std::string interface_name,
 				 uint64_t serial_number,
 				 unsigned int* error_code);
+  NodeHandlePtr CreateNodeHandle(const std::string device_name,
+				 const std::string protocol_stack_name,
+				 const std::string interface_name,
+				 const std::string port_name,
+				 unsigned int* error_code);
 
   NodeHandlePtr CreateNodeHandle(const EnumeratedNode& node,
 				 unsigned int* error_code);

@@ -48,6 +48,9 @@ private:
   std::string name_;
   std::string actuator_name_;
   uint64_t serial_number_;
+  std::string port_name_;
+  std::string hw_version_;
+  bool use_serial_number_;
   OperationMode operation_mode_;
   NodeHandlePtr node_handle_;
   bool valid_;
