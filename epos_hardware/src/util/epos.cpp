@@ -69,6 +69,10 @@ Epos::Epos(const std::string& name,
     {
       operation_mode_ = PROFILE_VELOCITY_MODE;
     }
+    else if (operation_mode_str == "velocity")
+    {
+      operation_mode_ = VELOCITY_MODE;
+    }
     else
     {
       ROS_ERROR_STREAM(operation_mode_str << " is not a valid operation mode");
@@ -667,6 +671,21 @@ void Epos::write()
       return;
     VCS_MoveToPosition(
         node_handle_->device_handle->ptr, node_handle_->node_id, (int)(M_PI*2*position_cmd_), true, true, &error_code);
+  }
+  else if(operation_mode_ == VELOCITY_MODE)
+  {
+    if (isnan(velocity_cmd_))
+      return;
+    long cmd = static_cast<long>(velocity_cmd_ * 60 / (2 * M_PI));
+    if (max_profile_velocity_ > 0) // Allow clamping of
+    {
+      if (cmd < -max_profile_velocity_ * 60 / (2 * M_PI))
+        cmd = -max_profile_velocity_ * 60 / (2 * M_PI);
+      if (cmd > max_profile_velocity_ * 60 / (2 * M_PI))
+        cmd = max_profile_velocity_ * 60 / (2 * M_PI);
+    }
+
+    VCS_SetVelocityMust(node_handle_->device_handle->ptr, node_handle_->node_id, cmd, &error_code);
   }
 }
 

@@ -25,7 +25,11 @@ class Epos {
 public:
   typedef enum {
     PROFILE_POSITION_MODE = 1,
-    PROFILE_VELOCITY_MODE = 3
+    PROFILE_VELOCITY_MODE = 3,
+    // HOMING_MODE = 6,
+    // INTERPOLATED_POSITION_MODE = 7,
+    // POSITION_MODE = -1;
+    VELOCITY_MODE = -2
   } OperationMode;
 
   Epos(const std::string& name,
