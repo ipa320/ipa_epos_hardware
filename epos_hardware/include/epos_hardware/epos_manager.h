@@ -11,21 +11,26 @@
 #include "epos_hardware/utils.h"
 #include "epos_hardware/epos.h"
 
-
-namespace epos_hardware {
-
-class EposManager {
+namespace epos_hardware
+{
+class EposManager
+{
 public:
   EposManager(hardware_interface::ActuatorStateInterface& asi,
-	      hardware_interface::VelocityActuatorInterface& avi,
-	      hardware_interface::PositionActuatorInterface& api,
-	      ros::NodeHandle& nh, ros::NodeHandle& pnh,
-	      const std::vector<std::string>& motor_names);
+              hardware_interface::VelocityActuatorInterface& avi,
+              hardware_interface::PositionActuatorInterface& api,
+              ros::NodeHandle& nh,
+              ros::NodeHandle& pnh,
+              const std::vector<std::string>& motor_names);
   bool init();
   void read();
   void write();
   void update_diagnostics();
-  std::vector<boost::shared_ptr<Epos> > motors() { return motors_; };
+  std::vector<boost::shared_ptr<Epos> > motors()
+  {
+    return motors_;
+  };
+
 private:
   std::vector<boost::shared_ptr<Epos> > motors_;
   EposFactory epos_factory;
@@ -34,8 +39,6 @@ private:
   hardware_interface::VelocityActuatorInterface* avi_;
   hardware_interface::PositionActuatorInterface* api_;
 };
-
 }
-
 
 #endif
