@@ -82,7 +82,13 @@ install(PROGRAMS
   install_udev_rules
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-install(FILES 90-ftd2xx.rules
+install(FILES rules/90-ftd2xx.rules
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+install(FILES rules/98-epos4.rules
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+install(FILES rules/99-ftdi.rules
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
