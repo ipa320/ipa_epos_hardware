@@ -1,5 +1,6 @@
 #include "epos_hardware/epos.h"
 #include <boost/foreach.hpp>
+#include <boost/algorithm/clamp.hpp>
 
 namespace epos_hardware
 {
@@ -492,12 +493,9 @@ void Epos::write()
     if (isnan(velocity_cmd_))
       return;
     int cmd = (int)(velocity_cmd_ * 60 / (2 * M_PI));
-    if (max_profile_velocity_ >= 0)
+    if (max_profile_velocity_ > 0)  // Allow clamping of
     {
-      if (cmd < -max_profile_velocity_ * 60 / (2 * M_PI))
-        cmd = -max_profile_velocity_ * 60 / (2 * M_PI);
-      if (cmd > max_profile_velocity_ * 60 / (2 * M_PI))
-        cmd = max_profile_velocity_ * 60 / (2 * M_PI);
+      cmd = boost::algorithm::clamp(cmd, -max_profile_velocity_ * 60 / (2 * M_PI), max_profile_velocity_ * 60 / (2 * M_PI) );
     }
 
     if (cmd == 0 && halt_velocity_)
@@ -523,10 +521,7 @@ void Epos::write()
     long cmd = static_cast<long>(velocity_cmd_ * 60 / (2 * M_PI));
     if (max_profile_velocity_ > 0) // Allow clamping of
     {
-      if (cmd < -max_profile_velocity_ * 60 / (2 * M_PI))
-        cmd = -max_profile_velocity_ * 60 / (2 * M_PI);
-      if (cmd > max_profile_velocity_ * 60 / (2 * M_PI))
-        cmd = max_profile_velocity_ * 60 / (2 * M_PI);
+      cmd = boost::algorithm::clamp(cmd, -max_profile_velocity_ * 60 / (2 * M_PI), max_profile_velocity_ * 60 / (2 * M_PI) );
     }
 
     VCS_SetVelocityMust(node_handle_->device_handle->ptr, node_handle_->node_id, cmd, &error_code);
