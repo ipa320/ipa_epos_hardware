@@ -6,15 +6,11 @@
 **
 ** Summary:         Functions for Linux shared library
 **
-** Date:            10.10.2014
-** Target:          x86, x86_64, arm sf/hf 
+** Date:            12.2016
+** Target:          x86, x86_64, arm hf
+** Devices:         EPOS, EPOS2, EPOS4
 ** Written by:      maxon motor ag, CH-6072 Sachseln
 **
-** Changes:        4.8.1.0    (15.12.10): initial version
-** 			       4.8.2.0    (14.03.11): usb interface related bugfix's
-** 			       4.9.1.0    (27.07.12): ipm mode bugfix, kernel 2.6 support, ftdi driver update 
-** 			       4.9.2.0    (26.04.13): rs232 baudrate bugfix, new functions: VCS_GetHomingState, VCS_WaitForHomingAttained, 	**                                        VCS_GetVelocityIsAveraged, VCS_GetCurrentIsAveraged
-** 			       5.0.1.0    (10.10.14): x86_64, arm sf/hf support, new functions: VCS_GetDriverInfo, bugfix: VCS_GetErrorInfo  
 *************************************************************************************************************************************/
 
 #ifndef _H_LINUX_EPOSCMD_
@@ -23,6 +19,8 @@
 //Communication
     int CreateCommunication();
     int DeleteCommunication();
+
+    #define DWORD unsigned int
 
 // INITIALISATION FUNCTIONS
     #define Initialisation_DllExport            extern "C"
@@ -59,15 +57,16 @@
     Initialisation_DllExport int  VCS_CloseAllDevices(unsigned int* pErrorCode);
 
 //Info
-    HelpFunctions_DllExport int  VCS_GetVersion(void* KeyHandle, unsigned short NodeId, unsigned short* pHardwareVersion, unsigned short* pSoftwareVersion, unsigned short* pApplicationNumber, unsigned short* pApplicationVersion, unsigned int* pErrorCode);
-    HelpFunctions_DllExport int  VCS_GetErrorInfo(unsigned int ErrorCodeValue, char* pErrorInfo, unsigned short MaxStrSize);
     HelpFunctions_DllExport int  VCS_GetDriverInfo(char* p_pszLibraryName, unsigned short p_usMaxLibraryNameStrSize,char* p_pszLibraryVersion, unsigned short p_usMaxLibraryVersionStrSize, unsigned int* p_pErrorCode);
+	HelpFunctions_DllExport int  VCS_GetVersion(void* KeyHandle, unsigned short NodeId, unsigned short* pHardwareVersion, unsigned short* pSoftwareVersion, unsigned short* pApplicationNumber, unsigned short* pApplicationVersion, unsigned int* pErrorCode);
+    HelpFunctions_DllExport int  VCS_GetErrorInfo(unsigned int ErrorCodeValue, char* pErrorInfo, unsigned short MaxStrSize);
 
 //Advanced Functions
     HelpFunctions_DllExport int  VCS_GetDeviceNameSelection(int StartOfSelection, char* pDeviceNameSel, unsigned short MaxStrSize, int* pEndOfSelection, unsigned int* pErrorCode);
     HelpFunctions_DllExport int  VCS_GetProtocolStackNameSelection(char* DeviceName, int StartOfSelection, char* pProtocolStackNameSel, unsigned short MaxStrSize, int* pEndOfSelection, unsigned int* pErrorCode);
     HelpFunctions_DllExport int  VCS_GetInterfaceNameSelection(char* DeviceName, char* ProtocolStackName, int StartOfSelection, char* pInterfaceNameSel, unsigned short MaxStrSize, int* pEndOfSelection, unsigned int* pErrorCode);
     HelpFunctions_DllExport int  VCS_GetPortNameSelection(char* DeviceName, char* ProtocolStackName, char* InterfaceName, int StartOfSelection, char* pPortSel, unsigned short MaxStrSize, int* pEndOfSelection, unsigned int* pErrorCode);
+	HelpFunctions_DllExport int  VCS_ResetPortNameSelection(char* DeviceName, char* ProtocolStackName, char* InterfaceName, DWORD* pErrorCode);
     HelpFunctions_DllExport int  VCS_GetBaudrateSelection(char* DeviceName, char* ProtocolStackName, char* InterfaceName, char* PortName, int StartOfSelection, unsigned int* pBaudrateSel, int* pEndOfSelection, unsigned int* pErrorCode);
     HelpFunctions_DllExport int  VCS_GetKeyHandle(char* DeviceName, char* ProtocolStackName, char* InterfaceName, char* PortName, void** pKeyHandle, unsigned int* pErrorCode);
     HelpFunctions_DllExport int  VCS_GetDeviceName(void* KeyHandle, char* pDeviceName, unsigned short MaxStrSize, unsigned int* pErrorCode);
@@ -99,10 +98,12 @@
     Configuration_DllExport int  VCS_SetIncEncoderParameter(void* KeyHandle, unsigned short NodeId, unsigned int EncoderResolution, int InvertedPolarity, unsigned int* pErrorCode);
     Configuration_DllExport int  VCS_SetHallSensorParameter(void* KeyHandle, unsigned short NodeId, int InvertedPolarity, unsigned int* pErrorCode);
     Configuration_DllExport int  VCS_SetSsiAbsEncoderParameter(void* KeyHandle, unsigned short NodeId, unsigned short DataRate, unsigned short NbOfMultiTurnDataBits, unsigned short NbOfSingleTurnDataBits, int InvertedPolarity, unsigned int* pErrorCode);
+	Configuration_DllExport int  VCS_SetSsiAbsEncoderParameterEx(void* KeyHandle, unsigned short NodeId, unsigned short DataRate, unsigned short NbOfMultiTurnDataBits, unsigned short NbOfSingleTurnDataBits, unsigned short NbOfSpecialDataBits, int InvertedPolarity, unsigned short Timeout, unsigned short PowerupTime, unsigned int* pErrorCode);
     Configuration_DllExport int  VCS_GetSensorType(void* KeyHandle, unsigned short NodeId, unsigned short* pSensorType, unsigned int* pErrorCode);
     Configuration_DllExport int  VCS_GetIncEncoderParameter(void* KeyHandle, unsigned short NodeId, unsigned int* pEncoderResolution, int* pInvertedPolarity, unsigned int* pErrorCode);
     Configuration_DllExport int  VCS_GetHallSensorParameter(void* KeyHandle, unsigned short NodeId, int* pInvertedPolarity, unsigned int* pErrorCode);
     Configuration_DllExport int  VCS_GetSsiAbsEncoderParameter(void* KeyHandle, unsigned short NodeId, unsigned short* pDataRate, unsigned short* pNbOfMultiTurnDataBits, unsigned short* pNbOfSingleTurnDataBits, int* pInvertedPolarity, unsigned int* pErrorCode);
+    Configuration_DllExport int  VCS_GetSsiAbsEncoderParameterEx(void* KeyHandle, unsigned short NodeId, unsigned short* pDataRate, unsigned short* pNbOfMultiTurnDataBits, unsigned short* pNbOfSingleTurnDataBits, unsigned short* pNbOfSpecialDataBits, int* pInvertedPolarity, unsigned short* pTimeout, unsigned short* pPowerupTime, unsigned int* pErrorCode);
 
     //Safety
     Configuration_DllExport int  VCS_SetMaxFollowingError(void* KeyHandle, unsigned short NodeId, unsigned int MaxFollowingError, unsigned int* pErrorCode);
@@ -365,7 +366,7 @@
     const signed char VN_CENTI                             = -2;
     const signed char VN_MILLI                             = -3;
 
-//Operational mode 
+//Operational mode
     const signed char OMD_PROFILE_POSITION_MODE          = 1;
     const signed char OMD_PROFILE_VELOCITY_MODE          = 3;
     const signed char OMD_HOMING_MODE                    = 6;
@@ -441,5 +442,3 @@
     const unsigned short NCS_RESET_COMMUNICATION          = 130;
 
 #endif //_H_LINUX_EPOSCMD_
-
-

@@ -163,6 +163,19 @@ NodeHandlePtr EposFactory::CreateNodeHandle(const std::string device_name,
   }
   return NodeHandlePtr();
 }
+NodeHandlePtr EposFactory::CreateNodeHandle(const std::string device_name,
+					    const std::string protocol_stack_name,
+					    const std::string interface_name,
+					    const std::string port_name,
+					    unsigned int* error_code) {
+  std::vector<EnumeratedNode> nodes;
+  EnumerateNodes(device_name, protocol_stack_name, interface_name, port_name, &nodes, error_code);
+  BOOST_FOREACH(const EnumeratedNode& node, nodes) {
+    return CreateNodeHandle(node, error_code);
+
+  }
+  return NodeHandlePtr();
+}
 
 NodeHandlePtr EposFactory::CreateNodeHandle(const EnumeratedNode& node,
 					    unsigned int* error_code) {

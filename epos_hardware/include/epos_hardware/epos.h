@@ -25,7 +25,11 @@ class Epos {
 public:
   typedef enum {
     PROFILE_POSITION_MODE = 1,
-    PROFILE_VELOCITY_MODE = 3
+    PROFILE_VELOCITY_MODE = 3,
+    // HOMING_MODE = 6,
+    // INTERPOLATED_POSITION_MODE = 7,
+    // POSITION_MODE = -1;
+    VELOCITY_MODE = -2
   } OperationMode;
 
   Epos(const std::string& name,
@@ -48,6 +52,9 @@ private:
   std::string name_;
   std::string actuator_name_;
   uint64_t serial_number_;
+  std::string port_name_;
+  std::string hw_version_;
+  bool use_serial_number_;
   OperationMode operation_mode_;
   NodeHandlePtr node_handle_;
   bool valid_;
@@ -62,6 +69,7 @@ private:
   double position_cmd_;
   double velocity_cmd_;
   int max_profile_velocity_;
+  int sensor_resolution_;
   bool halt_velocity_;
   double torque_constant_;
   double nominal_current_;
